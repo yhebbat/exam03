@@ -1,43 +1,44 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <stdlib.h>
 
 int w;
 int h;
 char bg;
 char **all;
 
-typedef struct inside
+typedef struct test
 {
 	char c;
 	float x;
 	float y;
-	float radius;
-	char cercle;
-}	t_inside;
+	float rayon;
+	char s;
+}t_test;
 
-int ft_error(FILE *fd, int ret)
+
+int ft_error(FILE *fd, int err)
 {
-    if (ret == 2)
-    {
-        ret = 1;
-        write(1,"Error: argument\n",17);
-    }
-    else if (ret == 1)
-        write(1,"Error: Operation file corrupted\n",33);
-    else
-    {
+	if (err == 2)
+	{
+		err = 1;
+		write(1, "Error: Operation file corrupted\n", 32);
+	}
+	else if (err == 1)
+		write(1, "Error: argument\n", 16);
+	else
+	{
 		for (int i = 0; i < h; i++)
 		{
-			write(1,all[i],w);
-			write(1,"\n",1);
+			write (1, all[i], w);
+			write(1, "\n",1);
 		}
-    }
+	}
 	if (fd)
-		fclose (fd);
-	return(ret);
+		fclose(fd);
+	return (err);
 }
 
 int main(int ac, char **av)
@@ -45,41 +46,41 @@ int main(int ac, char **av)
 	FILE *fd;
 	int res;
 	float sqr;
-	t_inside ins;
+	t_test hh;
 
 	fd = NULL;
 	if (ac != 2)
-		ft_error(fd, 2);
+		return(ft_error(fd, 1));
 	if ((fd = fopen(av[1], "r")))
 	{
-		if ((res = fscanf(fd, "%d %d %c", &w, &h ,&bg)) == 3)
+		if ((res = fscanf(fd, "%d %d %c", &w, &h, &bg)) == 3)
 		{
 			if (w > 0 && w <= 300 && h > 0 && h <= 300)
 			{
-				all = malloc(h * sizeof(char *));
-				for (int k = 0; k < h; k++)
+				all = malloc(sizeof(char *) * h);
+				for (int i = 0; i < h; i++)
 				{
-					all[k] = malloc(w * sizeof(char));
-					memset(all[k], bg, w);
+					all[i] = malloc(sizeof(char) * w);
+					memset( all[i], bg, w);
 				}
 				while (1)
 				{
-					res = fscanf(fd, "\n%c %f %f %f %c", &ins.c, &ins.x, &ins.y, &ins.radius, &ins.cercle);
+					res = fscanf(fd, "\n%c %f %f %f %c", &hh.c, &hh.x, &hh.y, &hh.rayon, &hh.s);
 					if (res == -1)
-						return(ft_error(fd, 0));
-					if (res != 5 || ins.radius <= 0 || (ins.c != 'c' && ins.c != 'C'))
+						return (ft_error(fd, 0));
+					else if (res != 5 || hh.rayon <= 0 || (hh.c != 'c' && hh.c != 'C'))
 						break ;
-					for (int line = 0; line < w; line++)
+					for (int line = 0; line < h; line++)
 					{
-						for (int col = 0; col < h; col++)
+						for (int col = 0; col < w; col++)
 						{
-							sqr = sqrtf((col - ins.x)*(col - ins.x) + (line - ins.y)*(line - ins.y));
-							if (sqr <= ins.radius)
+							sqr = sqrtf((col - hh.x) * (col - hh.x) + (line - hh.y) * (line - hh.y));
+							if (sqr <= hh.rayon)
 							{
-								if (ins.c == 'c' && sqr + 1 > ins.radius)
-									all[line][col] = ins.c;
-								else if (ins.c == 'C')
-									all[line][col] = ins.c;
+								if (hh.c == 'C')
+									all[line][col] = hh.s;
+								else if (hh.c == 'c' && sqr + 1 > hh.rayon)
+									all[line][col] = hh.s;
 							}
 						}
 					}
@@ -87,5 +88,5 @@ int main(int ac, char **av)
 			}
 		}
 	}
-	return (ft_error(fd, 1));
+	return (ft_error(fd, 2));
 }
